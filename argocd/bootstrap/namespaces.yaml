@@ -1,0 +1,19 @@
+# Namespaces used throughout the workshop.
+#
+# - kong-operator-system : Kong Operator (the controller/operator itself) runs here,
+#                           isolated from the data plane / AI Gateway workload.
+# - kong-ai-gateway       : Everything related to the Kong AI Gateway DataPlane and
+#                           its Konnect control-plane wiring lives here.
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: kong-operator-system
+  labels:
+    app.kubernetes.io/part-of: kong-ai-gateway-workshop
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: kong-ai-gateway
+  labels:
+    app.kubernetes.io/part-of: kong-ai-gateway-workshop

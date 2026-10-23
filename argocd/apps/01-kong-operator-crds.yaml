@@ -1,0 +1,34 @@
+# Installs the Kong Operator / Konnect CRDs (DataPlane, ControlPlane,
+# GatewayConfiguration, KonnectGatewayControlPlane, KonnectAPIAuthConfiguration,
+# KonnectExtension, AIGatewayAgent, etc.) ahead of the operator itself and the
+# AI Gateway resources, via Kustomize against the Kong Operator repo's own
+# CRD manifests -- these moved from Kong/kubernetes-configuration into
+# Kong/kong-operator, and must be pinned to the same tag as the operator's
+# appVersion (see argocd/apps/02-kong-operator.yaml).
+#
+# Managed as its own Application (sync-wave -2) so CRD lifecycle/upgrades are
+# explicit and decoupled from the operator Helm release.
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: kong-operator-crds
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "-2"
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/Kong/kong-operator.git
+    targetRevision: v2.3.4
+    path: config/crd/gateway-operator
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: kong-operator-system
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+      - ServerSideApply=true
+      - Replace=false

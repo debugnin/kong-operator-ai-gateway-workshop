@@ -1,0 +1,31 @@
+# Installs the upstream Kubernetes Gateway API standard CRDs
+# (GatewayClass, Gateway, HTTPRoute, etc.). Kong Operator requires these to
+# be present even when its own Gateway/GatewayConfiguration controllers are
+# used, and this workshop disables the chart's bundled
+# `gwapi-standard-crds` subchart in favor of managing all CRDs explicitly.
+#
+# Runs in the same early sync-wave as the Kong Operator CRDs, ahead of the
+# operator itself.
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: gateway-api-crds
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "-2"
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/kubernetes-sigs/gateway-api.git
+    targetRevision: v1.3.0
+    path: config/crd/standard
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: kong-operator-system
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+      - ServerSideApply=true

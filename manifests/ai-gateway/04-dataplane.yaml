@@ -1,0 +1,26 @@
+# The Kong AI Gateway data plane, pinned to the latest 2.2.0 release, wired
+# to Konnect via the KonnectExtension above.
+apiVersion: gateway-operator.konghq.com/v1beta1
+kind: DataPlane
+metadata:
+  name: ai-gateway-dataplane
+  namespace: kong-ai-gateway
+spec:
+  extensions:
+    - kind: KonnectExtension
+      group: konnect.konghq.com
+      name: ai-gateway-konnect-extension
+  deployment:
+    podTemplateSpec:
+      spec:
+        containers:
+          - name: proxy
+            image: kong/kong-ai-gateway:2.2.0
+            readinessProbe:
+              initialDelaySeconds: 5
+              periodSeconds: 5
+# Ingress Service defaults to ClusterIP. For this local-cluster workshop,
+# reach the proxy with:
+#   kubectl -n kong-ai-gateway port-forward svc/ai-gateway-dataplane-<hash>-proxy 8000:80
+# (see docs/04-verify.md for the exact service name and more options, e.g.
+# switching network.services.ingress.type to LoadBalancer/NodePort).

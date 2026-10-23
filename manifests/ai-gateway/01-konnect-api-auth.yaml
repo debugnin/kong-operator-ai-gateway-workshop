@@ -1,0 +1,12 @@
+# Authenticates this cluster with Konnect using the PAT stored in the
+# konnect-pat Secret (see 00-konnect-pat-secret.yaml).
+apiVersion: konnect.konghq.com/v1alpha1
+kind: KonnectAPIAuthConfiguration
+metadata:
+  name: konnect-api-auth
+  namespace: kong-ai-gateway
+spec:
+  type: secretRef
+  secretRef:
+    name: konnect-pat
+  serverURL: au.api.konghq.com

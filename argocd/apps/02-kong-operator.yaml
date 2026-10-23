@@ -1,0 +1,45 @@
+# Deploys Kong Operator itself (the controller workload) into its own
+# namespace, kong-operator-system, via the official Helm chart.
+#
+# CRD installation is disabled here (ko-crds.enabled=false, gwapi-*-crds
+# disabled) because CRDs are managed independently by the
+# kong-operator-crds Application (sync-wave -2), which runs first.
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: kong-operator
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "-1"
+spec:
+  project: default
+  source:
+    repoURL: https://charts.konghq.com
+    chart: kong-operator
+    targetRevision: 1.4.3
+    helm:
+      releaseName: kong-operator
+      values: |
+        env:
+          ENABLE_CONTROLLER_KONNECT: "true"
+          # Kong AI Gateway uses its own product version scheme (e.g. 2.2.0),
+          # not the underlying Kong Gateway engine's version. The operator's
+          # built-in image validation only recognizes Kong Gateway-style
+          # semver (>= 3.x) and rejects the AI Gateway tag otherwise, so
+          # image validation is disabled here.
+          VALIDATE_IMAGES: "false"
+        ko-crds:
+          enabled: false
+        gwapi-standard-crds:
+          enabled: false
+        gwapi-experimental-crds:
+          enabled: false
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: kong-operator-system
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true

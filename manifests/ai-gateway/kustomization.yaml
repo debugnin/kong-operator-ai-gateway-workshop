@@ -1,0 +1,11 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+  - 01-konnect-api-auth.yaml
+  - 02-konnect-control-plane.yaml
+  - 03-konnect-extension.yaml
+  - 04-dataplane.yaml
+# NOTE: 00-konnect-pat-secret.yaml is intentionally NOT listed here.
+# It's a placeholder/reference only -- create the real Secret manually
+# (or via a secrets manager) before the ArgoCD Application syncs.
+# See docs/02-connect-konnect.md.
