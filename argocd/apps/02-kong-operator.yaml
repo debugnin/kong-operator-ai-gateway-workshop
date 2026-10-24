@@ -22,6 +22,12 @@ spec:
       values: |
         env:
           ENABLE_CONTROLLER_KONNECT: "true"
+          # Enables the AI Gateway DataPlane controller, which reconciles
+          # AIGatewayDataPlane resources (cert provisioning, license lookup,
+          # etc.). This is the current replacement for the deprecated
+          # enable-controller-aigateway (v1) flag -- both this and
+          # ENABLE_CONTROLLER_KONNECT above are required together.
+          ENABLE_CONTROLLER_AIGATEWAYDATAPLANE: "true"
           # Kong AI Gateway uses its own product version scheme (e.g. 2.2.0),
           # not the underlying Kong Gateway engine's version. The operator's
           # built-in image validation only recognizes Kong Gateway-style
