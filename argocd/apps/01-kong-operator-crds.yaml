@@ -19,7 +19,7 @@ spec:
   project: default
   source:
     repoURL: https://github.com/Kong/kong-operator.git
-    targetRevision: v2.3.4
+    targetRevision: v2.4.0-rapid.2.0
     path: config/crd/gateway-operator
   destination:
     server: https://kubernetes.default.svc

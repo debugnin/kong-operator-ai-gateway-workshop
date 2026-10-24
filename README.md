@@ -83,9 +83,9 @@ kubectl -n argocd get applications -w
 
 ## Notes / customization
 
-- **Chart/CRD versions pinned**: `kong-operator` Helm chart `1.4.3`
-  (operator `2.3.4`) and Kong Operator/Konnect CRDs from
-  `Kong/kubernetes-configuration@v2.0.1`. Bump both together when you
+- **Chart/CRD versions pinned**: `kong-operator` Helm chart `1.5.0-rapid.2.0`
+  (operator `2.4.0-rapid.2.0`) and Kong Operator/Konnect CRDs from
+  `Kong/kong-operator@v2.4.0-rapid.2.0`. Bump both together when you
   upgrade -- check the [version support
   matrix](https://developer.konghq.com/operator/) first.
 - **CRD ownership**: the Kong Operator Helm chart can install its own CRDs
