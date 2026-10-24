@@ -61,13 +61,18 @@ your existing k8s cluster
     ├── 00-prerequisites.md
     ├── 01-install-argocd.md
     ├── 02-connect-konnect.md
-    └── 03-verify.md
+    ├── 03-verify.md
+    └── kong-ai-gateway-deployment-options.md  # Operator vs. standalone Helm chart
 ```
 
 ## Quick start
 
 See the full walkthrough in [`docs/`](./docs/00-prerequisites.md), or at a
-glance (assumes an existing cluster + existing ArgoCD):
+glance (assumes an existing cluster + existing ArgoCD). If you're deciding
+*whether* Kong Operator is the right fit for your AI Gateway deployment in
+the first place (vs. the standalone `kong/kong-ai-gateway` Helm chart), see
+[`docs/kong-ai-gateway-deployment-options.md`](./docs/kong-ai-gateway-deployment-options.md)
+first.
 
 ```bash
 # 0. tools + Konnect PAT -- see docs/00-prerequisites.md
