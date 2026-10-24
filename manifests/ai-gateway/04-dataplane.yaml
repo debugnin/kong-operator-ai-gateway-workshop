@@ -1,26 +1,33 @@
-# The Kong AI Gateway data plane, pinned to the latest 2.2.0 release, wired
-# to Konnect via the KonnectExtension above.
-apiVersion: gateway-operator.konghq.com/v1beta1
-kind: DataPlane
+# The Kong AI Gateway data plane. AIGatewayDataPlane runs the AI Gateway
+# binary and wires it directly to the KonnectAIGateway control plane created
+# above via controlPlaneRef -- Kong Operator provisions the mTLS client
+# certificate automatically, so no separate KonnectExtension resource is
+# needed (that pattern is only for the generic gateway-operator DataPlane
+# kind, used with KonnectGatewayControlPlane).
+#
+# See: https://developer.konghq.com/operator/get-started/ai-gateway/deploy/
+apiVersion: aigateway.konghq.com/v1alpha1
+kind: AIGatewayDataPlane
 metadata:
   name: ai-gateway-dataplane
   namespace: kong-ai-gateway
 spec:
-  extensions:
-    - kind: KonnectExtension
-      group: konnect.konghq.com
-      name: ai-gateway-konnect-extension
+  controlPlaneRef:
+    type: konnectNamespacedRef
+    konnectNamespacedRef:
+      name: ai-gateway-control-plane
   deployment:
-    podTemplateSpec:
-      spec:
-        containers:
-          - name: proxy
-            image: kong/kong-ai-gateway:2.2.0
-            readinessProbe:
-              initialDelaySeconds: 5
-              periodSeconds: 5
+    replicas: 1
+  network:
+    services:
+      ingress:
+        type: ClusterIP
+        ports:
+          - name: http
+            port: 8000
+            targetPort: 8000
 # Ingress Service defaults to ClusterIP. For this local-cluster workshop,
 # reach the proxy with:
-#   kubectl -n kong-ai-gateway port-forward svc/ai-gateway-dataplane-<hash>-proxy 8000:80
+#   kubectl -n kong-ai-gateway port-forward svc/<ai-gateway-dataplane-ingress-service> 8000:8000
 # (see docs/04-verify.md for the exact service name and more options, e.g.
 # switching network.services.ingress.type to LoadBalancer/NodePort).

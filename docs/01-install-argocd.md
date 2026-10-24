@@ -13,9 +13,8 @@ kubectl apply -f argocd/bootstrap/namespaces.yaml
 
 - `kong-operator-system` -- Kong Operator (the controller) runs here, in its
   own dedicated namespace.
-- `kong-ai-gateway` -- the AI Gateway `DataPlane` and all Konnect CRs
-  (`KonnectAPIAuthConfiguration`, `KonnectGatewayControlPlane`,
-  `KonnectExtension`) live here.
+- `kong-ai-gateway` -- the AI Gateway `AIGatewayDataPlane` and all Konnect CRs
+  (`KonnectAPIAuthConfiguration`, `KonnectAIGateway`) live here.
 
 ## Create the Konnect PAT secret
 
@@ -50,9 +49,9 @@ in `argocd/apps/`:
 
 | Order (sync-wave) | Application            | What it deploys                                                        |
 |--------------------|-------------------------|--------------------------------------------------------------------------|
-| -2                 | `kong-operator-crds`    | Kong Operator / Konnect CRDs (DataPlane, KonnectExtension, etc.)        |
+| -2                 | `kong-operator-crds`    | Kong Operator / Konnect CRDs (AIGatewayDataPlane, KonnectAIGateway, etc.) |
 | -1                 | `kong-operator`         | Kong Operator controller, Helm chart, into `kong-operator-system`       |
-| 0                  | `kong-ai-gateway`       | Konnect auth/control-plane/extension + AI Gateway `DataPlane`           |
+| 0                  | `kong-ai-gateway`       | Konnect auth/AI Gateway control plane + AI Gateway `AIGatewayDataPlane` |
 
 Watch them come up:
 

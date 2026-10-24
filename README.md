@@ -1,8 +1,8 @@
 # Kong Operator + Kong AI Gateway 2.2.0 Workshop
 
 An interactive, GitOps-driven workshop showing how to use **Kong Operator**
-to deploy a **Kong AI Gateway 2.2.0** data plane connected to a **Konnect**
-control plane -- everything managed through **ArgoCD**.
+to deploy a **Kong AI Gateway** data plane connected to a **Konnect AI
+Gateway** control plane -- everything managed through **ArgoCD**.
 
 This workshop assumes you already have a Kubernetes cluster and an existing
 ArgoCD installation on it; it only adds namespaces, Applications, and the
@@ -20,16 +20,21 @@ your existing k8s cluster
 └── namespace: kong-ai-gateway
     └── (sync-wave 0)
         ├── KonnectAPIAuthConfiguration  (auth to Konnect via PAT)
-        ├── KonnectGatewayControlPlane   (new Hybrid CP in Konnect: ai-gateway-control-plane)
-        ├── KonnectExtension             (wires DataPlane <-> Konnect CP, auto mTLS)
-        └── DataPlane                    (kong/kong-ai-gateway:2.2.0)
+        ├── KonnectAIGateway             (new AI Gateway-typed CP in Konnect: ai-gateway-control-plane)
+        └── AIGatewayDataPlane           (runs the AI Gateway binary; auto mTLS via controlPlaneRef)
 ```
 
 - **Kong Operator** runs isolated in its own namespace (`kong-operator-system`),
   separate from the gateway workload.
-- The **DataPlane** runs the latest **Kong AI Gateway 2.2.0** image.
-- A new **Control Plane is created in Konnect** for the AI Gateway, and the
-  DataPlane connects to it in Hybrid mode.
+- The **AIGatewayDataPlane** runs the AI Gateway binary directly (no
+  separate `KonnectExtension`/generic `DataPlane` needed -- that pattern is
+  only for the regular gateway-operator `DataPlane` kind, paired with a
+  `KonnectGatewayControlPlane`).
+- A new **AI Gateway control plane is created in Konnect** via
+  `KonnectAIGateway` -- this is a distinct Konnect entity type from a
+  regular (`KonnectGatewayControlPlane`) control plane, and is required for
+  the AI Gateway-specific resources (`AIGatewayModelProvider`,
+  `AIGatewayModel`) used to configure LLM routing.
 - Everything is deployed as **ArgoCD Applications**: one for the Kong
   Operator CRDs, one for Kong Operator itself (Helm chart), one for the
   Konnect/AI Gateway resources.
@@ -49,9 +54,8 @@ your existing k8s cluster
 ├── manifests/ai-gateway/             # synced by the 03-ai-gateway Application
 │   ├── 00-konnect-pat-secret.yaml    # placeholder/reference only, not synced
 │   ├── 01-konnect-api-auth.yaml
-│   ├── 02-konnect-control-plane.yaml
-│   ├── 03-konnect-extension.yaml
-│   ├── 04-dataplane.yaml
+│   ├── 02-konnect-control-plane.yaml # KonnectAIGateway (AI Gateway-typed CP)
+│   ├── 04-dataplane.yaml             # AIGatewayDataPlane
 │   └── kustomization.yaml
 └── docs/
     ├── 00-prerequisites.md
@@ -94,9 +98,11 @@ kubectl -n argocd get applications -w
   synced/versioned ArgoCD Application instead (`01-kong-operator-crds.yaml`),
   per the requirement to have a distinct Application for the AI Gateway DP
   CRDs.
-- **Image**: `kong/kong-ai-gateway:2.2.0` is the latest stable Kong AI
-  Gateway 2.x release at time of writing. Check
-  <https://hub.docker.com/r/kong/kong-ai-gateway/tags> for newer patch tags.
+- **Image**: `AIGatewayDataPlane` doesn't take an explicit image field by
+  default in this setup -- Kong Operator selects the AI Gateway runtime
+  image itself. To pin a specific version, set it via
+  `spec.deployment.podTemplateSpec`. Check
+  <https://hub.docker.com/r/kong/kong-ai-gateway/tags> for available tags.
 - **Secrets**: the Konnect PAT is never committed to git -- create it
   manually (or via a secrets manager/External Secrets Operator in a real
   deployment) before the `kong-ai-gateway` Application syncs.

@@ -1,17 +1,21 @@
-# Creates a new Konnect Control Plane (Hybrid mode) dedicated to the AI
-# Gateway workshop. Kong Operator will create this control plane in Konnect
-# using the credentials from konnect-api-auth.
-apiVersion: konnect.konghq.com/v1alpha2
-kind: KonnectGatewayControlPlane
+# Creates a Konnect AI Gateway control plane (NOT a regular Gateway control
+# plane -- KonnectGatewayControlPlane would create the wrong Konnect entity
+# type for this workshop). KonnectAIGateway is the Kong Operator resource
+# that provisions an AI Gateway-typed control plane in Konnect and serves as
+# the parent for the AIGatewayDataPlane, AIGatewayModelProvider and
+# AIGatewayModel resources.
+#
+# See: https://developer.konghq.com/operator/get-started/ai-gateway/deploy/
+apiVersion: konnect.konghq.com/v1alpha1
+kind: KonnectAIGateway
 metadata:
   name: ai-gateway-control-plane
   namespace: kong-ai-gateway
 spec:
-  createControlPlaneRequest:
+  apiSpec:
     name: ai-gateway-control-plane
-    description: "Control plane for the Kong AI Gateway workshop"
-    labels:
-      workshop: kong-ai-gateway
+    displayName: Kong AI Gateway Workshop
+    description: "AI Gateway control plane for the Kong AI Gateway workshop"
   konnect:
     authRef:
       name: konnect-api-auth

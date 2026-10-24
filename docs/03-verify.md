@@ -9,13 +9,13 @@ kubectl -n kong-ai-gateway get pods           # the AI Gateway proxy pod(s)
 
 ## Reach the proxy
 
-The `DataPlane`'s ingress Service defaults to `ClusterIP`. Find it and
-port-forward:
+The `AIGatewayDataPlane`'s ingress Service defaults to `ClusterIP`
+(`ai-gateway-dataplane-ingress`), exposing port `8000`:
 
 ```bash
-kubectl -n kong-ai-gateway get svc -l app=ai-gateway-dataplane
+kubectl -n kong-ai-gateway get svc ai-gateway-dataplane-ingress
 
-kubectl -n kong-ai-gateway port-forward svc/<ingress-service-name> 8000:80
+kubectl -n kong-ai-gateway port-forward svc/ai-gateway-dataplane-ingress 8000:8000
 ```
 
 Then, in another terminal:
@@ -27,16 +27,19 @@ curl -i http://localhost:8000/
 ```
 
 > Prefer not to port-forward? Patch the ingress Service type once the
-> DataPlane is `Ready`: `spec.network.services.ingress.type: NodePort` or
-> `LoadBalancer`, depending on what your cluster supports.
+> `AIGatewayDataPlane` is `Ready`: `spec.network.services.ingress.type:
+> NodePort` or `LoadBalancer`, depending on what your cluster supports.
 
 ## Next steps (beyond this workshop)
 
 - Configure an AI Proxy / AI Semantic plugin + `Route`/`Service` (or a
   Gateway API `Gateway`/`HTTPRoute`) pointing at an LLM provider, and attach
   your provider credentials as a Konnect vault/secret.
-- Import/manage that configuration from Konnect's **Gateway Manager**, since
-  the data plane is now hybrid-connected to your Konnect control plane.
+- Import/manage that configuration from Konnect's **AI Gateway** section,
+  since the data plane is now connected to your `KonnectAIGateway` control
+  plane -- see
+  <https://developer.konghq.com/operator/get-started/ai-gateway/deploy/>
+  for adding `AIGatewayModelProvider`/`AIGatewayModel` resources.
 - See <https://developer.konghq.com/ai-gateway/> for plugin configuration.
 
 ## Tear down (workshop resources only)
@@ -49,5 +52,5 @@ kubectl delete -f argocd/bootstrap/namespaces.yaml
 This leaves ArgoCD and the underlying cluster untouched -- only the
 workshop's Applications and namespaces are removed.
 
-(Remember to also delete the `ai-gateway-control-plane` control plane in the
+(Remember to also delete the `ai-gateway-control-plane` AI Gateway in the
 Konnect UI if you no longer need it.)
